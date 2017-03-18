@@ -16,33 +16,43 @@ public class Metro {
 		Depo depo = new Depo();
 		Train tr1 = depo.trainBuilder("tr1");
 		trainCheck(tr1);
-		
+
 		depo = new Depo();
 		Train tr2 = depo.trainBuilder("tr2");
 		trainCheck(tr2);
-		
-		Train tr[] = {tr1, tr2};
-		writeFile(tr);
-		tr = readFile();
-		
-		trainCheck(tr1);
-		trainCheck(tr2);
-							
+
+//		Train tr[] = { tr1, tr2 };
+//		writeFile(tr);
+//		tr = readFile();
+//
+//		trainCheck(tr1);
+//		trainCheck(tr2);
+
 	}
-	
+
 	// Проверка вагонов в составе
 	static void trainCheck(Train tr) {
 		System.out.println(tr.getDriver());
-		for (int i = 0; i < 5; i++) {
-			if (tr.getRcm()[i].getType() == true) {
+
+		for (RailwayCarriage rc : tr.getListRC()){
+			if (rc.getType() == true) {
 				System.out.print(1 + " ");
 			} else {
 				System.out.print(0 + " ");
 			}
 		}
+
+//			for (int i = 0; i < 5; i++) {
+//				if (tr.getRcm()[i].getType() == true) {
+//					System.out.print(1 + " ");
+//				} else {
+//					System.out.print(0 + " ");
+//				}
+//			}
+		
 		System.out.println();
 	}
-	
+
 	static Train[] readFile() throws ClassNotFoundException, IOException {
 		// Счетчик файлов поездов
 		int count = 0;
@@ -54,12 +64,13 @@ public class Metro {
 				count++;
 			}
 		}
-		
+
 		Train tr[] = new Train[count];
-		
+
 		// Запись из файлов поездов в массив поездов
 		for (int i = 0; i < count; i++) {
-			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("..//Metro//Trains//" + "train" + (i+1) + ".trn"))) {
+			try (ObjectInputStream in = new ObjectInputStream(
+					new FileInputStream("..//Metro//Trains//" + "train" + (i + 1) + ".trn"))) {
 				tr[i] = (Train) in.readObject();
 			}
 		}
