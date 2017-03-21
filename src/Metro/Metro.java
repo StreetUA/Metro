@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 public class Metro {
@@ -14,12 +16,13 @@ public class Metro {
 		// TODO Auto-generated method stub
 
 		Depo depo = new Depo();
-		Train tr1 = depo.trainBuilder("tr1");
-		trainCheck(tr1);
+		depo.trainsBuilder();
+		List<Train> trainlist = depo.getTrainlist();
+		Iterator<Train> itertr = trainlist.iterator();
+		while (itertr.hasNext()) {
+			trainCheck(itertr.next());
+		}
 
-		depo = new Depo();
-		Train tr2 = depo.trainBuilder("tr2");
-		trainCheck(tr2);
 
 //		Train tr[] = { tr1, tr2 };
 //		writeFile(tr);
@@ -32,13 +35,13 @@ public class Metro {
 
 	// Проверка вагонов в составе
 	static void trainCheck(Train tr) {
-		System.out.println(tr.getDriver());
+		System.out.println(tr.getId());
 
 		for (RailwayCarriage rc : tr.getListRC()){
 			if (rc.getType() == true) {
-				System.out.print(1 + " ");
+				System.out.print(1 + "(" + rc.getId() + ")" + " ");
 			} else {
-				System.out.print(0 + " ");
+				System.out.print(0 + "(" + rc.getId() + ")" + " ");
 			}
 		}
 

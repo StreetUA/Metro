@@ -3,8 +3,9 @@ package Metro;
 import java.io.Serializable;
 
 public class RailwayCarriage implements Cloneable, Serializable {
-	private boolean type; // True - головной вагон False - обычный вагон
-
+	private boolean type;	// True - головной вагон False - обычный вагон
+	private int id;			// Ќомер вагона
+	
 	// ћетод клонировани€ вагонов
 	public RailwayCarriage clone() throws CloneNotSupportedException {
 		RailwayCarriage cloned = (RailwayCarriage) super.clone();
@@ -18,6 +19,14 @@ public class RailwayCarriage implements Cloneable, Serializable {
 	
 	public boolean getType() {
 		return this.type;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 }

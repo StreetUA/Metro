@@ -7,16 +7,23 @@ import java.util.ListIterator;
 import java.util.Random;
 
 public class Depo {
-	List<RailwayCarriage> wagonlist; // Коллекция вагонов
-	List<Train> trainlist; // Коллекция поездов
+	private List<RailwayCarriage> wagonlist; // Коллекция вагонов
+	private List<Train> trainlist; // Коллекция поездов
+	
+	public List<Train> getTrainlist() {
+		return this.trainlist;
+	}
 	
 	// создание коллекции вагонов
 	public Depo() throws CloneNotSupportedException {
 		wagonlist = new ArrayList<>();
 		for (int i = 0; i < 50; i++) {
-			wagonlist.add(rcBuilder());
+			RailwayCarriage temp = rcBuilder();
+			temp.setId(i);
+			wagonlist.add(temp);
 		}
 		((ArrayList<RailwayCarriage>) wagonlist).trimToSize();
+		
 		trainlist = new ArrayList<>();
 	}
 
@@ -34,59 +41,43 @@ public class Depo {
 			return rcu.clone();
 		}
 	}
-	
+
 	// Метод создания поездов в депо
-	public void trainsBuilder() {
-		
+	public void trainsBuilder() throws CloneNotSupportedException {
+		Iterator<RailwayCarriage> iterwl = wagonlist.iterator();
+		int i = 1;
+		while ((iterwl).hasNext()) {
+			trainlist.add(trainBuilder(i));
+			i++;
+		}
 	}
-	
+
 	// Метод создания поезда из вагонов депо
-	public Train trainBuilder(String driver) throws CloneNotSupportedException {
+	public Train trainBuilder(int id) throws CloneNotSupportedException {
 
 		Train train = new Train();
-		train.setDriver(driver);
+		train.setId(id);
 
 		Iterator<RailwayCarriage> iterwl = wagonlist.iterator();
 		List<RailwayCarriage> listRC = new ArrayList<>();
 
 		while (iterwl.hasNext() && listRC.size() < 5) {
 			RailwayCarriage temp = iterwl.next();
-
-			if (temp.getType() && (listRC.size() == 0 || listRC.size() == 4)) {
-				listRC.add(listRC.size(), temp);
-				System.out.println(listRC.size());
+			if (listRC.size() < 2) {
+				if (temp.getType()) {
+					listRC.add(temp);
+				}
+			} else {
+				if (!temp.getType()) {
+					listRC.add(1, temp);
+				}
 			}
-			if (!temp.getType() && (listRC.size() > 0 || listRC.size() < 4)) {
-				listRC.add(listRC.size(), temp);
-				System.out.println(listRC.size());
-			}
-
 			iterwl.remove();
 		}
-		
+		((ArrayList<RailwayCarriage>) wagonlist).trimToSize();
+				
 		train.setListRC(listRC);
-
-		// Train train = new Train();
-		// train.setDriver(driver);
-		//
-		// RailwayCarriage rcm[] = new RailwayCarriage[5];
-		//
-		// for (int i = 0; i < 5; i++) {
-		// if (i == 0 || i == 4) {
-		// rcm[i] = rcBuilder();
-		// if (!rcm[i].getType()) {
-		// i -= 1;
-		// }
-		// } else {
-		// rcm[i] = rcBuilder();
-		// if (rcm[i].getType()) {
-		// i -= 1;
-		// }
-		// }
-		// }
-		//
-		// train.setRcm(rcm);
-
+		
 		return train;
 	}
 
