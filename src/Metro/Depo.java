@@ -9,26 +9,43 @@ import java.util.Random;
 public class Depo {
 	private List<RailwayCarriage> wagonlist; // Коллекция вагонов
 	private List<Train> trainlist; // Коллекция поездов
-	
+
 	public List<Train> getTrainlist() {
 		return this.trainlist;
 	}
-	
-	// создание коллекции вагонов
+
 	public Depo() throws CloneNotSupportedException {
+		// создание коллекции вагонов
 		wagonlist = new ArrayList<>();
-		for (int i = 0; i < 50; i++) {
+		for (int i = 0; i < 100; i++) {
 			RailwayCarriage temp = rcBuilder();
 			temp.setId(i);
 			wagonlist.add(temp);
 		}
 		((ArrayList<RailwayCarriage>) wagonlist).trimToSize();
-		
+
 		trainlist = new ArrayList<>();
 	}
 
+	public Depo(List<Train> trainlist) {
+		this.trainlist = trainlist;
+	}
+
+	// Метод создания поездов в депо
+	public void trainsBuilder() throws CloneNotSupportedException {
+		Iterator<RailwayCarriage> iterwl = wagonlist.iterator();
+		int i = 1;
+		while (iterwl.hasNext()) {
+			Train train = trainBuilder(i);
+			if (train.getListRC().size() == 5) {
+				trainlist.add(train);
+			}
+			i++;
+		}
+	}
+
 	// Метод создания случайного вагона
-	public static RailwayCarriage rcBuilder() throws CloneNotSupportedException {
+	private static RailwayCarriage rcBuilder() throws CloneNotSupportedException {
 		// Создание главного вагона и обычного вагона
 		RailwayCarriage rcm = new RailwayCarriage();
 		rcm.setType(true);
@@ -42,18 +59,8 @@ public class Depo {
 		}
 	}
 
-	// Метод создания поездов в депо
-	public void trainsBuilder() throws CloneNotSupportedException {
-		Iterator<RailwayCarriage> iterwl = wagonlist.iterator();
-		int i = 1;
-		while ((iterwl).hasNext()) {
-			trainlist.add(trainBuilder(i));
-			i++;
-		}
-	}
-
 	// Метод создания поезда из вагонов депо
-	public Train trainBuilder(int id) throws CloneNotSupportedException {
+	private Train trainBuilder(int id) throws CloneNotSupportedException {
 
 		Train train = new Train();
 		train.setId(id);
@@ -75,9 +82,9 @@ public class Depo {
 			iterwl.remove();
 		}
 		((ArrayList<RailwayCarriage>) wagonlist).trimToSize();
-				
+
 		train.setListRC(listRC);
-		
+
 		return train;
 	}
 

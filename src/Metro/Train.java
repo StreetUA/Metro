@@ -9,7 +9,7 @@ public class Train implements Serializable {
 	
 	private static final long serialVersionUID = 1;
 
-	// ¬вод и вывод имени машиниста
+	// ¬вод и вывод номера поезда
 	public int getId() {
 		return id;
 	}

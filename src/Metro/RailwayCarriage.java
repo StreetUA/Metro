@@ -12,7 +12,7 @@ public class RailwayCarriage implements Cloneable, Serializable {
 		return cloned;
 	}
 	
-	// Записи и считывания типа вагона
+	// Ввод и вывод типа вагона
 	public void setType(boolean type) {
 		this.type = type;
 	}
@@ -21,6 +21,7 @@ public class RailwayCarriage implements Cloneable, Serializable {
 		return this.type;
 	}
 
+	// Ввод и вывод номера вагона
 	public int getId() {
 		return id;
 	}
