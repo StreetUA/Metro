@@ -1,9 +1,14 @@
 package Metro;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Random;
 
 public class Depo {
@@ -13,8 +18,14 @@ public class Depo {
 	public List<Train> getTrainlist() {
 		return this.trainlist;
 	}
+	
+	private void setTrainlist(List<Train> trainlist) {
+		this.trainlist = trainlist;
+	}
 
-	public Depo() throws CloneNotSupportedException {
+	// Метод создания поездов в депо
+	public void trainsBuilder() throws CloneNotSupportedException {
+
 		// создание коллекции вагонов
 		wagonlist = new ArrayList<>();
 		for (int i = 0; i < 100; i++) {
@@ -23,16 +34,10 @@ public class Depo {
 			wagonlist.add(temp);
 		}
 		((ArrayList<RailwayCarriage>) wagonlist).trimToSize();
-
+		
+		// Создание коллекции поездов
 		trainlist = new ArrayList<>();
-	}
 
-	public Depo(List<Train> trainlist) {
-		this.trainlist = trainlist;
-	}
-
-	// Метод создания поездов в депо
-	public void trainsBuilder() throws CloneNotSupportedException {
 		Iterator<RailwayCarriage> iterwl = wagonlist.iterator();
 		int i = 1;
 		while (iterwl.hasNext()) {
@@ -70,6 +75,7 @@ public class Depo {
 
 		while (iterwl.hasNext() && listRC.size() < 5) {
 			RailwayCarriage temp = iterwl.next();
+			temp.setTrain(train);
 			if (listRC.size() < 2) {
 				if (temp.getType()) {
 					listRC.add(temp);
@@ -86,6 +92,37 @@ public class Depo {
 		train.setListRC(listRC);
 
 		return train;
+	}
+
+	// Считывание поездов из файла
+	public void readFile() throws ClassNotFoundException, IOException {
+
+		List<Train> trainlist = new ArrayList<>();
+
+		File startCatalog = new File("..//Metro//Trains//");
+
+		for (File filepath : startCatalog.listFiles()) {
+			if (!filepath.isDirectory() && filepath.getName().endsWith(".trn")) {
+				try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filepath))) {
+					trainlist.add((Train) in.readObject());
+				}
+			}
+		}
+		
+		setTrainlist(trainlist);
+
+	}
+
+	// Запись поездов в файлы
+	public void writeFile() throws IOException {
+		Iterator<Train> iterlt = getTrainlist().iterator();
+		while (iterlt.hasNext()) {
+			Train train = iterlt.next();
+			try (ObjectOutputStream out = new ObjectOutputStream(
+					new FileOutputStream("..//Metro//Trains//" + "train" + train.getId() + ".trn"))) {
+				out.writeObject(train);
+			}
+		}
 	}
 
 }
