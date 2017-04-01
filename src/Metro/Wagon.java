@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RailwayCarriage implements Cloneable, Serializable {
+public class Wagon implements Cloneable, Serializable {
 	private boolean type; // True - головной вагон False - обычный вагон
 	private int id; // Номер вагона
 	private Train train; // Номер поезда
@@ -12,13 +12,20 @@ public class RailwayCarriage implements Cloneable, Serializable {
 
 	private static final long serialVersionUID = 1;
 
-	public RailwayCarriage() {
-		this.passlist = new ArrayList<Passenger>();
+	public Wagon() {
+		passlist = new ArrayList<Passenger>();
 	}
 
 	// Метод клонирования вагонов
-	public RailwayCarriage clone() throws CloneNotSupportedException {
-		RailwayCarriage cloned = (RailwayCarriage) super.clone();
+	@Override
+	public Wagon clone() {
+		Wagon cloned = new Wagon();
+		try {
+			cloned = (Wagon) super.clone();
+			return cloned;
+		} catch (CloneNotSupportedException ex) {
+			System.out.println("При клонировании вагона " + this.getId() + " произошла ошибка");
+		}
 		return cloned;
 	}
 

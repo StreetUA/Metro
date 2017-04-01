@@ -9,13 +9,13 @@ public class Line {
 	private List<Train> trainlist;
 
 	public Line() {
-		this.trainlist = new ArrayList<Train>();
-		this.stationlist = new ArrayList<Station>();
+		trainlist = new ArrayList<Train>();
+		stationlist = new ArrayList<Station>();
 		for (int i = 1; i < 11; i++) {
 			Station station = new Station();
 			station.setId(i);
 			station.setLine(this);
-			this.stationlist.add(station);
+			this.getStationlist().add(station);
 		}
 	}
 

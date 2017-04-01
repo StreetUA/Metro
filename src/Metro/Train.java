@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Train implements Serializable {
 	private int id; // Номер поезда
-	private List<RailwayCarriage> listRC; // Коллекция из вагонов
+	private List<Wagon> wagonlist; // Коллекция из вагонов
 	private Line line; // Номер линии
 
 	private static final long serialVersionUID = 1;
@@ -14,7 +14,7 @@ public class Train implements Serializable {
 
 		System.out.println(getId());
 
-		for (RailwayCarriage rc : getListRC()) {
+		for (Wagon rc : getWagonlist()) {
 			if (rc.getType() == true) {
 				System.out.print(1 + "(" + rc.getId() + ")" + " ");
 			} else {
@@ -33,16 +33,16 @@ public class Train implements Serializable {
 		this.id = id;
 	}
 
-	public List<RailwayCarriage> getListRC() {
-		return listRC;
-	}
-
-	public void setListRC(List<RailwayCarriage> listRC) {
-		this.listRC = listRC;
-	}
-
 	public Line getLine() {
 		return line;
+	}
+
+	public List<Wagon> getWagonlist() {
+		return wagonlist;
+	}
+
+	public void setWagonlist(List<Wagon> wagonlist) {
+		this.wagonlist = wagonlist;
 	}
 
 	public void setLine(Line line) {

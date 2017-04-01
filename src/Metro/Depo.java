@@ -7,54 +7,111 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Random;
 
 public class Depo {
-	private List<RailwayCarriage> wagonlist; // Коллекция вагонов
+	private List<Wagon> wagonlist; // Коллекция вагонов
 	private List<Train> trainlist; // Коллекция поездов
+	private Line[] line;
+	private Queue<Driver> driverlist;
 
-	public List<Train> getTrainlist() {
-		return this.trainlist;
-	}
-	
-	private void setTrainlist(List<Train> trainlist) {
-		this.trainlist = trainlist;
+	public Depo() {
+		this.readFile();
+//		 this.trainListBuilder();
+//		 this.writeFile();
+
+		// Создание линий и станций
+		line = new Line[3];
+		for (int i = 0; i < 3; i++) {
+			this.getLine()[i] = new Line();
+			this.getLine()[i].setId(i + 1);
+		}
+
+		// Раздача поездов линиям
+		Iterator<Train> triter = getTrainlist().iterator();
+		while (triter.hasNext()) {
+			for (int i = 0; i < 3; i++) {
+				if (triter.hasNext()) {
+					getLine()[i].getTrainlist().add(triter.next());
+					getLine()[i].getTrainlist().get(getLine()[i].getTrainlist().size() - 1).setLine(getLine()[i]);
+				}
+			}
+		}
+
+		// Проверка
+		for (int i = 0; i < 3; i++) {
+			System.out.println("Line " + getLine()[i].getId());
+			Iterator<Station> iterstation = getLine()[i].getStationlist().iterator();
+			while (iterstation.hasNext()) {
+				System.out.print("Station " + iterstation.next().getId() + " ");
+			}
+			System.out.println();
+			Iterator<Train> itertrain = getLine()[i].getTrainlist().iterator();
+			while (itertrain.hasNext()) {
+				System.out.print("Train " + itertrain.next().getId() + " ");
+			}
+			System.out.println();
+		}
+
+		// Поездки водителей по линиям на поездах
+		Comparator<Driver> comparator = new Comparator<Driver>() {
+			@Override
+			public int compare(Driver d1, Driver d2) {
+				if (d1.getExp() > d2.getExp()) {
+					return -1;
+				}
+				if (d1.getExp() < d2.getExp()) {
+					return 1;
+				}
+				return 0;
+			}
+		};
+
+		driverlist = new PriorityQueue<>(20, comparator);
+		for (int i = 0; i < 20; i++) {
+			Driver newdriver = new Driver();
+			newdriver.setId(i + 1);
+			newdriver.setExp((new Random().nextInt(5)));
+			getDriverlist().add(newdriver);
+		}
 	}
 
 	// Метод создания поездов в депо
-	public void trainsBuilder() throws CloneNotSupportedException {
+	private void trainListBuilder() {
 
 		// создание коллекции вагонов
 		wagonlist = new ArrayList<>();
 		for (int i = 0; i < 100; i++) {
-			RailwayCarriage temp = rcBuilder();
+			Wagon temp = wagonBuilder();
 			temp.setId(i);
-			wagonlist.add(temp);
+			getWagonlist().add(temp);
 		}
-		((ArrayList<RailwayCarriage>) wagonlist).trimToSize();
-		
+
 		// Создание коллекции поездов
 		trainlist = new ArrayList<>();
 
-		Iterator<RailwayCarriage> iterwl = wagonlist.iterator();
+		Iterator<Wagon> iterwagon = getWagonlist().iterator();
 		int i = 1;
-		while (iterwl.hasNext()) {
+		while (iterwagon.hasNext()) {
 			Train train = trainBuilder(i);
-			if (train.getListRC().size() == 5) {
-				trainlist.add(train);
+			if (train.getWagonlist().size() == 5) {
+				getTrainlist().add(train);
 			}
 			i++;
 		}
 	}
 
 	// Метод создания случайного вагона
-	private static RailwayCarriage rcBuilder() throws CloneNotSupportedException {
+	private static Wagon wagonBuilder() {
 		// Создание главного вагона и обычного вагона
-		RailwayCarriage rcm = new RailwayCarriage();
+		Wagon rcm = new Wagon();
 		rcm.setType(true);
-		RailwayCarriage rcu = new RailwayCarriage();
+		Wagon rcu = new Wagon();
 		rcu.setType(false);
 
 		if ((new Random().nextInt(2)) > 0) {
@@ -65,64 +122,105 @@ public class Depo {
 	}
 
 	// Метод создания поезда из вагонов депо
-	private Train trainBuilder(int id) throws CloneNotSupportedException {
+	private Train trainBuilder(int id) {
 
 		Train train = new Train();
 		train.setId(id);
 
-		Iterator<RailwayCarriage> iterwl = wagonlist.iterator();
-		List<RailwayCarriage> listRC = new ArrayList<>();
+		Iterator<Wagon> iterwagon = getWagonlist().iterator();
+		List<Wagon> wagonlist = new ArrayList<>();
 
-		while (iterwl.hasNext() && listRC.size() < 5) {
-			RailwayCarriage temp = iterwl.next();
+		while (iterwagon.hasNext() && wagonlist.size() < 5) {
+			Wagon temp = iterwagon.next();
 			temp.setTrain(train);
-			if (listRC.size() < 2) {
+			if (wagonlist.size() < 2) {
 				if (temp.getType()) {
-					listRC.add(temp);
+					wagonlist.add(temp);
 				}
 			} else {
 				if (!temp.getType()) {
-					listRC.add(1, temp);
+					wagonlist.add(1, temp);
 				}
 			}
-			iterwl.remove();
+			iterwagon.remove();
 		}
-		((ArrayList<RailwayCarriage>) wagonlist).trimToSize();
 
-		train.setListRC(listRC);
+		train.setWagonlist(wagonlist);
 
 		return train;
 	}
 
 	// Считывание поездов из файла
-	public void readFile() throws ClassNotFoundException, IOException {
+	private void readFile() {
 
 		List<Train> trainlist = new ArrayList<>();
 
-		File startCatalog = new File("..//Metro//Trains//");
+		try {
+			File startCatalog = new File("..//Metro//Trains//");
 
-		for (File filepath : startCatalog.listFiles()) {
-			if (!filepath.isDirectory() && filepath.getName().endsWith(".trn")) {
-				try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filepath))) {
-					trainlist.add((Train) in.readObject());
+			for (File filepath : startCatalog.listFiles()) {
+				if (!filepath.isDirectory() && filepath.getName().endsWith(".trn")) {
+					try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filepath))) {
+						trainlist.add((Train) in.readObject());
+					}
 				}
 			}
+		} catch (IOException ex) {
+			System.out.println("Не удалось прочитать файл поезда");
+		} catch (ClassNotFoundException ex) {
+			System.out.println("Файл в указанной папке не являются файлом поезда");
 		}
-		
+
 		setTrainlist(trainlist);
 
 	}
 
 	// Запись поездов в файлы
-	public void writeFile() throws IOException {
-		Iterator<Train> iterlt = getTrainlist().iterator();
-		while (iterlt.hasNext()) {
-			Train train = iterlt.next();
-			try (ObjectOutputStream out = new ObjectOutputStream(
-					new FileOutputStream("..//Metro//Trains//" + "train" + train.getId() + ".trn"))) {
-				out.writeObject(train);
+	private void writeFile() {
+		try {
+			Iterator<Train> itertrain = getTrainlist().iterator();
+			while (itertrain.hasNext()) {
+				Train train = itertrain.next();
+				try (ObjectOutputStream out = new ObjectOutputStream(
+						new FileOutputStream("..//Metro//Trains//" + "train" + train.getId() + ".trn"))) {
+					out.writeObject(train);
+				}
 			}
+		} catch (IOException ex) {
+			System.out.println("Не удалось создать файл поезда");
 		}
+	}
+
+	public List<Train> getTrainlist() {
+		return trainlist;
+	}
+
+	public void setTrainlist(List<Train> trainlist) {
+		this.trainlist = trainlist;
+	}
+
+	public Line[] getLine() {
+		return line;
+	}
+
+	public void setLine(Line[] line) {
+		this.line = line;
+	}
+
+	public Queue<Driver> getDriverlist() {
+		return driverlist;
+	}
+
+	public void setDriverlist(Queue<Driver> driverlist) {
+		this.driverlist = driverlist;
+	}
+
+	public List<Wagon> getWagonlist() {
+		return wagonlist;
+	}
+
+	public void setWagonlist(List<Wagon> wagonlist) {
+		this.wagonlist = wagonlist;
 	}
 
 }

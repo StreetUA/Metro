@@ -2,7 +2,7 @@ package Metro;
 
 public class Passenger {
 	private int id;			// Номер пассажира
-	private RailwayCarriage wagon;	// Номер вагона
+	private Wagon wagon;	// Номер вагона
 	private Station station;	// Номер станции
 	
 	public int getId() {
@@ -13,11 +13,11 @@ public class Passenger {
 		this.id = id;
 	}
 
-	public RailwayCarriage getWagon() {
+	public Wagon getWagon() {
 		return wagon;
 	}
 
-	public void setWagon(RailwayCarriage wagon) {
+	public void setWagon(Wagon wagon) {
 		this.wagon = wagon;
 	}
 

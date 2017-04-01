@@ -9,14 +9,14 @@ public class Station {
 	private Line line; // Номер линии
 	private List<Passenger> passlist;
 
-	public Station() {
+	public void randomPassOnStation() {
 		passlist = new ArrayList<Passenger>();
-		int tmp = new Random().nextInt(20) + 1;
+		int tmp = new Random().nextInt(50) + 1;
 		for (int i = 1; i < tmp + 1; i++) {
 			Passenger passenger = new Passenger();
-			passenger.setId(i);
+			passenger.setId(this.getLine().getId() * 100 + i);
 			passenger.setStation(this);
-			this.passlist.add(passenger);
+			this.getPasslist().add(passenger);
 		}
 	}
 
