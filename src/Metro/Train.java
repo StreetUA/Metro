@@ -6,7 +6,6 @@ import java.util.List;
 public class Train implements Serializable {
 	private int id; // Номер поезда
 	private List<Wagon> wagonlist; // Коллекция из вагонов
-	private Line line; // Номер линии
 
 	private static final long serialVersionUID = 1;
 
@@ -33,10 +32,7 @@ public class Train implements Serializable {
 		this.id = id;
 	}
 
-	public Line getLine() {
-		return line;
-	}
-
+	
 	public List<Wagon> getWagonlist() {
 		return wagonlist;
 	}
@@ -45,8 +41,6 @@ public class Train implements Serializable {
 		this.wagonlist = wagonlist;
 	}
 
-	public void setLine(Line line) {
-		this.line = line;
-	}
+	
 
 }

@@ -7,8 +7,7 @@ import java.util.List;
 public class Wagon implements Cloneable, Serializable {
 	private boolean type; // True - головной вагон False - обычный вагон
 	private int id; // Номер вагона
-	private Train train; // Номер поезда
-	private List<Passenger> passlist;
+	private List<Passenger> passlist; // Список пассажиров в вагоне
 
 	private static final long serialVersionUID = 1;
 
@@ -43,14 +42,6 @@ public class Wagon implements Cloneable, Serializable {
 
 	public void setId(int id) {
 		this.id = id;
-	}
-
-	public Train getTrain() {
-		return train;
-	}
-
-	public void setTrain(Train train) {
-		this.train = train;
 	}
 
 	public List<Passenger> getPasslist() {

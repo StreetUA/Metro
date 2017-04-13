@@ -17,19 +17,20 @@ import java.util.Random;
 public class Depo {
 	private List<Wagon> wagonlist; // Коллекция вагонов
 	private List<Train> trainlist; // Коллекция поездов
-	private Line[] line;
-	private Queue<Driver> driverlist;
+	private Line[] line; // Массив линий
+	private Queue<Driver> driverlist; // Список водителей
 
 	public Depo() {
 		this.readFile();
-//		 this.trainListBuilder();
-//		 this.writeFile();
+		// this.trainListBuilder();
+		// this.writeFile();
 
 		// Создание линий и станций
 		line = new Line[3];
 		for (int i = 0; i < 3; i++) {
 			this.getLine()[i] = new Line();
 			this.getLine()[i].setId(i + 1);
+			this.getLine()[i].stationCreate();
 		}
 
 		// Раздача поездов линиям
@@ -38,27 +39,11 @@ public class Depo {
 			for (int i = 0; i < 3; i++) {
 				if (triter.hasNext()) {
 					getLine()[i].getTrainlist().add(triter.next());
-					getLine()[i].getTrainlist().get(getLine()[i].getTrainlist().size() - 1).setLine(getLine()[i]);
 				}
 			}
 		}
 
-		// Проверка
-		for (int i = 0; i < 3; i++) {
-			System.out.println("Line " + getLine()[i].getId());
-			Iterator<Station> iterstation = getLine()[i].getStationlist().iterator();
-			while (iterstation.hasNext()) {
-				System.out.print("Station " + iterstation.next().getId() + " ");
-			}
-			System.out.println();
-			Iterator<Train> itertrain = getLine()[i].getTrainlist().iterator();
-			while (itertrain.hasNext()) {
-				System.out.print("Train " + itertrain.next().getId() + " ");
-			}
-			System.out.println();
-		}
-
-		// Поездки водителей по линиям на поездах
+		// Создание списка водителей
 		Comparator<Driver> comparator = new Comparator<Driver>() {
 			@Override
 			public int compare(Driver d1, Driver d2) {
@@ -79,6 +64,27 @@ public class Depo {
 			newdriver.setExp((new Random().nextInt(5)));
 			getDriverlist().add(newdriver);
 		}
+	}
+
+	public void metroRun() {
+		do {
+			int count = 0;
+			for (Line line : this.getLine()) {
+				// Запуск линии, станций на линии, эскалаторов и лобби на
+				// станции
+				line.lineRun();
+				// Запуск поездов на линии
+				Iterator<Train> triter = line.getTrainlist().iterator();
+				while (triter.hasNext()) {
+					count++;
+					TrainMovingLine tml = new TrainMovingLine(count, this.getDriverlist().poll(), triter.next(), line);
+					this.getDriverlist().add(tml.getDriver());
+					Thread tmlThread = new Thread(tml);
+					tmlThread.start();
+				}
+			}
+		} while (true);
+
 	}
 
 	// Метод создания поездов в депо
@@ -132,7 +138,6 @@ public class Depo {
 
 		while (iterwagon.hasNext() && wagonlist.size() < 5) {
 			Wagon temp = iterwagon.next();
-			temp.setTrain(train);
 			if (wagonlist.size() < 2) {
 				if (temp.getType()) {
 					wagonlist.add(temp);

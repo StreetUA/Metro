@@ -1,18 +1,21 @@
 package Metro;
 
+import java.util.Iterator;
 import java.util.Random;
 
-public class TrainMovingLine {
-	private int id;
-	private Driver driver;
-	private Train train;
-	private Line line;
+public class TrainMovingLine implements Runnable {
+	private int id; // Ключ
+	private Driver driver; // Водитель поезда на линии
+	private Train train; // Поезд на линии
+	private Line line; // Линия
 
 	public TrainMovingLine() {
 	}
 
-	// Раздаем пыт водителям
+	// Раздаем опыт водителям
 	public TrainMovingLine(int id, Driver driver, Train train, Line line) {
+
+		// Создание добавочного опыта
 		int temp;
 		if ((new Random().nextInt(2)) > 0) {
 			temp = 5;
@@ -25,6 +28,22 @@ public class TrainMovingLine {
 		this.id = id;
 		this.driver = driver;
 		this.train = train;
+	}
+
+	@Override
+	public void run() {
+		// Движение поезда от станции к станции
+		Iterator<Station> stationiter = this.getLine().getStationlist().iterator();
+		try {
+			while (stationiter.hasNext()) {
+				Thread.sleep(30000);
+				Station station = stationiter.next();
+				TrainVisitStation tvs = new TrainVisitStation(this.getId() * 100 + station.getId(), station, this);
+				Thread StationThread = new Thread(tvs);
+				StationThread.start();
+			}
+		} catch (InterruptedException e) {
+		}
 	}
 
 	public int getId() {
@@ -58,4 +77,5 @@ public class TrainMovingLine {
 	public void setLine(Line line) {
 		this.line = line;
 	}
+
 }

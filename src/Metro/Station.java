@@ -2,22 +2,41 @@ package Metro;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Station {
 	private int id; // Номер санции
 	private Line line; // Номер линии
-	private List<Passenger> passlist;
+	private Lobby lobby; // номер лобби
+	private Elevator[] elevator = new Elevator[3]; // 3 эскалатора
+	private List<Passenger> passlist; // Список пассажиров
 
-	public void randomPassOnStation() {
+	public Station() {
 		passlist = new ArrayList<Passenger>();
-		int tmp = new Random().nextInt(50) + 1;
-		for (int i = 1; i < tmp + 1; i++) {
-			Passenger passenger = new Passenger();
-			passenger.setId(this.getLine().getId() * 100 + i);
-			passenger.setStation(this);
-			this.getPasslist().add(passenger);
+		lobby = new Lobby();
+	}
+
+	public void createElevator() {
+		lobby.setStation(this);
+
+		for (int i = 0; i < 3; i++) {
+			elevator[i] = new Elevator();
+			elevator[i].setStation(this);
+			elevator[i].setId(this.getId() * 100 + i);
 		}
+	}
+
+	public void stationRun() {
+		Thread lobbyThread = new Thread(lobby);
+		lobbyThread.start();
+
+		Thread elevatorThread0 = new Thread(elevator[0]);
+		elevatorThread0.start();
+
+		Thread elevatorThread1 = new Thread(elevator[1]);
+		elevatorThread1.start();
+
+		Thread elevatorThread2 = new Thread(elevator[2]);
+		elevatorThread2.start();
 	}
 
 	public int getId() {
@@ -34,6 +53,22 @@ public class Station {
 
 	public void setLine(Line line) {
 		this.line = line;
+	}
+
+	public Lobby getLobby() {
+		return lobby;
+	}
+
+	public void setLobby(Lobby lobby) {
+		this.lobby = lobby;
+	}
+
+	public Elevator[] getElevator() {
+		return elevator;
+	}
+
+	public void setElevator(Elevator[] elevator) {
+		this.elevator = elevator;
 	}
 
 	public List<Passenger> getPasslist() {
