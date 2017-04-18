@@ -3,6 +3,8 @@ package Metro;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Elevator implements Runnable {
 	private int id; // Номер эскалатора
@@ -10,33 +12,32 @@ public class Elevator implements Runnable {
 	private List<Passenger> passlist; // Список пассажиров
 
 	public Elevator() {
-		passlist = new ArrayList<Passenger>();
+		this.passlist = new ArrayList<Passenger>();
 	}
 
 	@Override
 	public void run() {
-		try {
-			Thread.sleep(3000);
-			do {
+		// Thread.sleep(2000);
+		do {
+			try {
+				Thread.sleep(500);
 				// Переход пассажира из вестибюля на эскалатор
-				Thread.sleep(1000);
-				Iterator<Passenger> passlobbyiter = station.getLobby().getPasslist().iterator();
-				Passenger passenger = passlobbyiter.next();
-				passlist.add(passenger);
-				station.getLobby().getPasslist().remove(passenger);
-				System.out.println("New passanger " + passenger.getId() + " on the elevator " + this.getId());
+				synchronized (getStation().getLobby().getPasslist()) {
+					if (getStation().getLobby().getPasslist().isEmpty()) {
+						getStation().getLobby().getPasslist().wait();
+					} else {
+						synchronized (getPasslist()) {
+							getPasslist().add(getStation().getLobby().getPasslist().get(0));
+						}
+						System.out.println("New passanger " + getStation().getLobby().getPasslist().get(0).getId()
+								+ " on the elevator " + getId());
+						getStation().getLobby().getPasslist().remove(0);
+					}
+				}
+			} catch (InterruptedException e) {
+			}
+		} while (true);
 
-				// Переход пассажира с эскалатора на станцию
-				Thread.sleep(1000);
-				Iterator<Passenger> passeleviter = station.getLobby().getPasslist().iterator();
-				passenger = passeleviter.next();
-				station.getPasslist().add(passenger);
-				passlist.remove(passenger);
-				System.out.println("New passanger " + passenger.getId() + " on the station " + station.getId());
-
-			} while (true);
-		} catch (InterruptedException e) {
-		}
 	}
 
 	public int getId() {

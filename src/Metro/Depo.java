@@ -26,17 +26,18 @@ public class Depo {
 		// this.writeFile();
 
 		// Создание линий и станций
-		line = new Line[3];
-		for (int i = 0; i < 3; i++) {
+		this.line = new Line[3];
+		for (int i = 0; i < this.line.length; i++) {
 			this.getLine()[i] = new Line();
 			this.getLine()[i].setId(i + 1);
 			this.getLine()[i].stationCreate();
+			this.getLine()[i].setDepo(this);
 		}
 
 		// Раздача поездов линиям
 		Iterator<Train> triter = getTrainlist().iterator();
 		while (triter.hasNext()) {
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < this.line.length; i++) {
 				if (triter.hasNext()) {
 					getLine()[i].getTrainlist().add(triter.next());
 				}
@@ -57,8 +58,8 @@ public class Depo {
 			}
 		};
 
-		driverlist = new PriorityQueue<>(20, comparator);
-		for (int i = 0; i < 20; i++) {
+		this.driverlist = new PriorityQueue<>(12, comparator);
+		for (int i = 0; i < this.getDriverlist().size(); i++) {
 			Driver newdriver = new Driver();
 			newdriver.setId(i + 1);
 			newdriver.setExp((new Random().nextInt(5)));
@@ -67,24 +68,12 @@ public class Depo {
 	}
 
 	public void metroRun() {
-		do {
-			int count = 0;
-			for (Line line : this.getLine()) {
-				// Запуск линии, станций на линии, эскалаторов и лобби на
-				// станции
-				line.lineRun();
-				// Запуск поездов на линии
-				Iterator<Train> triter = line.getTrainlist().iterator();
-				while (triter.hasNext()) {
-					count++;
-					TrainMovingLine tml = new TrainMovingLine(count, this.getDriverlist().poll(), triter.next(), line);
-					this.getDriverlist().add(tml.getDriver());
-					Thread tmlThread = new Thread(tml);
-					tmlThread.start();
-				}
-			}
-		} while (true);
-
+		for (Line line : getLine()) {
+			// Запуск линии, станций на линии, эскалаторов и лобби на станции
+			// line.lineRun();
+			Thread lineThread = new Thread(line);
+			lineThread.start();
+		}
 	}
 
 	// Метод создания поездов в депо

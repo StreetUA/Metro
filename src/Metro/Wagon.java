@@ -12,7 +12,7 @@ public class Wagon implements Cloneable, Serializable {
 	private static final long serialVersionUID = 1;
 
 	public Wagon() {
-		passlist = new ArrayList<Passenger>();
+		this.passlist = new ArrayList<Passenger>();
 	}
 
 	// Метод клонирования вагонов
@@ -23,7 +23,7 @@ public class Wagon implements Cloneable, Serializable {
 			cloned = (Wagon) super.clone();
 			return cloned;
 		} catch (CloneNotSupportedException ex) {
-			System.out.println("При клонировании вагона " + this.getId() + " произошла ошибка");
+			System.out.println("При клонировании вагона " + getId() + " произошла ошибка");
 		}
 		return cloned;
 	}

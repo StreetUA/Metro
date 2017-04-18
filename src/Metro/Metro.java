@@ -7,6 +7,6 @@ public class Metro {
 
 		Depo depo = new Depo();
 		depo.metroRun();
-		
+			
 	}
 }

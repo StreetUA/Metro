@@ -8,24 +8,26 @@ public class Lobby implements Runnable {
 	private List<Passenger> passlist; // Список пассажиров
 
 	public Lobby() {
-		passlist = new ArrayList<Passenger>();
+		this.passlist = new ArrayList<Passenger>();
 		// this.randomPassOnLobby();
 	}
 
 	@Override
 	public void run() {
-		int i = passlist.size();
+		int i = getPasslist().size();
 		do {
 			try {
-
 				// Появление пассажира в вестибюле
-				Thread.sleep(1000);
+				Thread.sleep(250);
 				i++;
 				Passenger passenger = new Passenger();
-				passenger.setId(this.getStation().getId()*100 + i);
-				this.getPasslist().add(passenger);
-				System.out.println("New passanger " + passenger.getId() + " on the lobby of station " + station.getId());
-
+				passenger.setId(getStation().getId() + i * 100);
+				synchronized (getPasslist()) {
+					getPasslist().add(passenger);
+					getPasslist().notifyAll();
+				}
+				System.out
+						.println("New passanger " + passenger.getId() + " on the lobby of station " + getStation().getId());
 			} catch (InterruptedException e) {
 			}
 		} while (true);
