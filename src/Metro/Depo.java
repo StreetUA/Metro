@@ -27,7 +27,7 @@ public class Depo {
 
 		// Создание линий и станций
 		this.line = new Line[3];
-		for (int i = 0; i < this.line.length; i++) {
+		for (int i = 0; i < getLine().length; i++) {
 			this.getLine()[i] = new Line();
 			this.getLine()[i].setId(i + 1);
 			this.getLine()[i].stationCreate();
@@ -37,7 +37,7 @@ public class Depo {
 		// Раздача поездов линиям
 		Iterator<Train> triter = getTrainlist().iterator();
 		while (triter.hasNext()) {
-			for (int i = 0; i < this.line.length; i++) {
+			for (int i = 0; i < getLine().length; i++) {
 				if (triter.hasNext()) {
 					getLine()[i].getTrainlist().add(triter.next());
 				}
@@ -59,7 +59,7 @@ public class Depo {
 		};
 
 		this.driverlist = new PriorityQueue<>(12, comparator);
-		for (int i = 0; i < this.getDriverlist().size(); i++) {
+		for (int i = 0; i < 12; i++) {
 			Driver newdriver = new Driver();
 			newdriver.setId(i + 1);
 			newdriver.setExp((new Random().nextInt(5)));
@@ -69,10 +69,14 @@ public class Depo {
 
 	public void metroRun() {
 		for (Line line : getLine()) {
-			// Запуск линии, станций на линии, эскалаторов и лобби на станции
-			// line.lineRun();
+			line.lineRun();
 			Thread lineThread = new Thread(line);
 			lineThread.start();
+			Iterator<Station> stationiter = line.getStationlist().iterator();
+			while (stationiter.hasNext()) {
+				Thread stationThread = new Thread(stationiter.next());
+				stationThread.start();
+			}
 		}
 	}
 

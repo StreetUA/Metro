@@ -43,7 +43,7 @@ public class Station implements Runnable {
 	public void run() {
 		do {
 			try {
-				Thread.sleep(500);
+				Thread.sleep(50);
 				// Переход пассажира с эскалатора на станцию
 				for (Elevator elevator : getElevator()) {
 					synchronized (elevator.getPasslist()) {
@@ -52,8 +52,8 @@ public class Station implements Runnable {
 								getPasslist().add(elevator.getPasslist().get(0));
 								getPasslist().notifyAll();
 							}
-							System.out.println("New passanger " + elevator.getPasslist().get(0).getId()
-									+ " on the station " + this.getId());
+//							System.out.println("New passanger " + elevator.getPasslist().get(0).getId()
+//									+ " on the station " + this.getId());
 							elevator.getPasslist().remove(0);
 						}
 					}

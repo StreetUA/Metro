@@ -18,7 +18,7 @@ public class Lobby implements Runnable {
 		do {
 			try {
 				// Появление пассажира в вестибюле
-				Thread.sleep(250);
+				Thread.sleep(25);
 				i++;
 				Passenger passenger = new Passenger();
 				passenger.setId(getStation().getId() + i * 100);
@@ -26,8 +26,8 @@ public class Lobby implements Runnable {
 					getPasslist().add(passenger);
 					getPasslist().notifyAll();
 				}
-				System.out
-						.println("New passanger " + passenger.getId() + " on the lobby of station " + getStation().getId());
+//				System.out
+//						.println("New passanger " + passenger.getId() + " on the lobby of station " + getStation().getId());
 			} catch (InterruptedException e) {
 			}
 		} while (true);

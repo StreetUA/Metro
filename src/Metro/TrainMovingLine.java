@@ -29,16 +29,21 @@ public class TrainMovingLine implements Runnable {
 			Train train = new Train();
 
 			synchronized (getTrainlist()) {
-				train = getTrainlist().get(0);
-				getTrainlist().remove(0);
+				if (getTrainlist().isEmpty()) {
+					getTrainlist().wait();
+				} else {
+					train = getTrainlist().get(0);
+					getTrainlist().remove(0);
+				}
 			}
 
 			synchronized (getDriverlist()) {
 				driver = getDriverlist().poll();
 			}
 
-			System.out.println("Line " + getLine().getId() + " Driver " + driver.getId() + " is moving on train " + train.getId());
-			
+			System.out.println(
+					"Line " + getLine().getId() + " Driver " + driver.getId() + " is moving on Train " + train.getId());
+
 			// Движение поезда от станции к станции
 			Iterator<Station> stationiter = getLine().getStationlist().iterator();
 			while (stationiter.hasNext()) {
@@ -50,7 +55,7 @@ public class TrainMovingLine implements Runnable {
 			}
 
 			driver.setExp(driver.getExp() + 5);
-			
+
 			synchronized (getDriverlist()) {
 				getDriverlist().add(driver);
 				getDriverlist().notifyAll();
@@ -61,7 +66,8 @@ public class TrainMovingLine implements Runnable {
 				getTrainlist().notifyAll();
 			}
 
-			System.out.println("Line " + getLine().getId() + " Train " + train.getId() + " is back");
+			System.out.println(
+					"Line " + getLine().getId() + " Driver " + driver.getId() + " returned on Train " + train.getId());
 
 		} catch (
 

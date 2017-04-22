@@ -41,21 +41,21 @@ public class Line implements Runnable {
 					}
 				}
 
-				// Проверка опыта водителей
-				synchronized (getDepo().getDriverlist()) {
-					List<Driver> temp = new ArrayList<>();
-					while (!getDepo().getDriverlist().isEmpty()) {
-						Driver driver = getDepo().getDriverlist().poll();
-						System.out.print(driver.getId() + "(" + driver.getExp() + ") ");
-						temp.add(driver);
-					}
-					System.out.println();
-
-					Iterator<Driver> tempIter = temp.iterator();
-					while (tempIter.hasNext()) {
-						getDepo().getDriverlist().add(tempIter.next());
-					}
-				}
+//				// Проверка опыта водителей
+//				synchronized (getDepo().getDriverlist()) {
+//					List<Driver> temp = new ArrayList<>();
+//					while (!getDepo().getDriverlist().isEmpty()) {
+//						Driver driver = getDepo().getDriverlist().poll();
+//						System.out.print(driver.getId() + "(" + driver.getExp() + ") ");
+//						temp.add(driver);
+//					}
+//					System.out.println();
+//
+//					Iterator<Driver> tempIter = temp.iterator();
+//					while (tempIter.hasNext()) {
+//						getDepo().getDriverlist().add(tempIter.next());
+//					}
+//				}
 
 			} catch (InterruptedException e) {
 			}

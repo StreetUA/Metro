@@ -20,7 +20,7 @@ public class Elevator implements Runnable {
 		// Thread.sleep(2000);
 		do {
 			try {
-				Thread.sleep(500);
+				Thread.sleep(50);
 				// Переход пассажира из вестибюля на эскалатор
 				synchronized (getStation().getLobby().getPasslist()) {
 					if (getStation().getLobby().getPasslist().isEmpty()) {
@@ -29,8 +29,8 @@ public class Elevator implements Runnable {
 						synchronized (getPasslist()) {
 							getPasslist().add(getStation().getLobby().getPasslist().get(0));
 						}
-						System.out.println("New passanger " + getStation().getLobby().getPasslist().get(0).getId()
-								+ " on the elevator " + getId());
+//						System.out.println("New passanger " + getStation().getLobby().getPasslist().get(0).getId()
+//								+ " on the elevator " + getId());
 						getStation().getLobby().getPasslist().remove(0);
 					}
 				}
