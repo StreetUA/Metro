@@ -1,9 +1,8 @@
 package Metro;
 
-import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Queue;
-import java.util.Random;
 
 public class TrainMovingLine implements Runnable {
 	private int id; // Ключ
@@ -14,7 +13,6 @@ public class TrainMovingLine implements Runnable {
 	public TrainMovingLine() {
 	}
 
-	// Раздаем опыт водителям
 	public TrainMovingLine(int id, Queue<Driver> driverlist, List<Train> trainlist, Line line) {
 		this.line = line;
 		this.id = id;
@@ -45,15 +43,37 @@ public class TrainMovingLine implements Runnable {
 					"Line " + getLine().getId() + " Driver " + driver.getId() + " is moving on Train " + train.getId());
 
 			// Движение поезда от станции к станции
-			Iterator<Station> stationiter = getLine().getStationlist().iterator();
+			ListIterator<Station> stationiter = getLine().getStationlist().listIterator();
 			while (stationiter.hasNext()) {
-				Thread.sleep(500);
+				Thread.sleep(1000);
 				Station station = stationiter.next();
 				TrainVisitStation tvs = new TrainVisitStation(getId() * 100 + station.getId(), station, train);
-				Thread stationThread = new Thread(tvs);
-				stationThread.start();
+				tvs.runTVS();
+				tvs.start.countDown();
+				tvs.finish.await();
+				System.out
+						.println("Line " + getLine().getId() + " Train " + train.getId() + " Station " + station.getId()
+								+ " " + tvs.countpassout + " passengers out and " + tvs.countpassin + " passengers in");
+				System.out.println("Lobby pass " + station.getLobby().getPasslist().size() + " in "
+						+ station.getLobby().in + " out " + station.getLobby().out);
+				System.out.println("Station pass " + station.getPasslist().size());
+			}
+			while (stationiter.hasPrevious()) {
+				Thread.sleep(1000);
+				Station station = stationiter.previous();
+				TrainVisitStation tvs = new TrainVisitStation(getId() * 100 + station.getId(), station, train);
+				tvs.runTVS();
+				tvs.start.countDown();
+				tvs.finish.await();
+				System.out
+						.println("Line " + getLine().getId() + " Train " + train.getId() + " Station " + station.getId()
+								+ " " + tvs.countpassout + " passengers out and " + tvs.countpassin + " passengers in");
+				System.out.println("Lobby pass " + station.getLobby().getPasslist().size() + " in "
+						+ station.getLobby().in + " out " + station.getLobby().out);
+				System.out.println("Station pass " + station.getPasslist().size());
 			}
 
+			// Раздаем опыт водителям
 			driver.setExp(driver.getExp() + 5);
 
 			synchronized (getDriverlist()) {

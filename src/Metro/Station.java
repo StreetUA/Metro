@@ -7,7 +7,7 @@ public class Station implements Runnable {
 	private int id; // Номер санции
 	private Line line; // Номер линии
 	private Lobby lobby; // номер лобби
-	private Elevator[] elevator = new Elevator[3]; // 3 эскалатора
+	private Elevator[] elevator = new Elevator[4]; // 4 эскалатора
 	private List<Passenger> passlist; // Список пассажиров
 
 	public Station() {
@@ -18,10 +18,11 @@ public class Station implements Runnable {
 	public void createElevator() {
 		getLobby().setStation(this);
 
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < elevator.length; i++) {
 			getElevator()[i] = new Elevator();
 			getElevator()[i].setStation(this);
 			getElevator()[i].setId(getId() + i * 100);
+			getElevator()[i].setUpdown(i % 2 == 0);
 		}
 	}
 
@@ -29,35 +30,44 @@ public class Station implements Runnable {
 		Thread lobbyThread = new Thread(getLobby());
 		lobbyThread.start();
 
-		Thread elevatorThread0 = new Thread(getElevator()[0]);
-		elevatorThread0.start();
-
-		Thread elevatorThread1 = new Thread(getElevator()[1]);
-		elevatorThread1.start();
-
-		Thread elevatorThread2 = new Thread(getElevator()[2]);
-		elevatorThread2.start();
+		for (int i = 0; i < elevator.length; i++) {
+			Thread elevatorThread = new Thread(getElevator()[i]);
+			elevatorThread.start();
+		}
 	}
 
 	@Override
 	public void run() {
 		do {
 			try {
-				Thread.sleep(50);
-				// Переход пассажира с эскалатора на станцию
+				Thread.sleep(100);
+				// Переход пассажира
 				for (Elevator elevator : getElevator()) {
-					synchronized (elevator.getPasslist()) {
-						if (!elevator.getPasslist().isEmpty()) {
-							synchronized (getPasslist()) {
-								getPasslist().add(elevator.getPasslist().get(0));
-								getPasslist().notifyAll();
+					if (!elevator.isUpdown()) {
+						// с эскалатора на станцию
+						synchronized (elevator.getPasslist()) {
+							if (!elevator.getPasslist().isEmpty()) {
+								synchronized (getPasslist()) {
+									getPasslist().add(elevator.getPasslist().get(0));
+									elevator.getPasslist().remove(0);
+									getPasslist().notifyAll();
+								}
 							}
-//							System.out.println("New passanger " + elevator.getPasslist().get(0).getId()
-//									+ " on the station " + this.getId());
-							elevator.getPasslist().remove(0);
+						}
+					} else {
+						// со станции на эскалатор
+						synchronized (getPasslist()) {
+							if (!getPasslist().isEmpty()) {
+								if (getPasslist().get(0).isInout()) {
+									synchronized (elevator.getPasslist()) {
+										elevator.getPasslist().add(getPasslist().get(0));
+										getPasslist().remove(0);
+										getPasslist().notifyAll();
+									}
+								}
+							}
 						}
 					}
-
 				}
 			} catch (InterruptedException e) {
 			}

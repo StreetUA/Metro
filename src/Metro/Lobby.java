@@ -6,10 +6,12 @@ import java.util.List;
 public class Lobby implements Runnable {
 	private Station station; // Номер станции
 	private List<Passenger> passlist; // Список пассажиров
+	int out, in;
 
 	public Lobby() {
 		this.passlist = new ArrayList<Passenger>();
-		// this.randomPassOnLobby();
+		out = 0;
+		in = 0;
 	}
 
 	@Override
@@ -18,16 +20,23 @@ public class Lobby implements Runnable {
 		do {
 			try {
 				// Появление пассажира в вестибюле
-				Thread.sleep(25);
+				Thread.sleep(100);
 				i++;
 				Passenger passenger = new Passenger();
 				passenger.setId(getStation().getId() + i * 100);
+				passenger.setInout(false);
 				synchronized (getPasslist()) {
+					// Выход из вестибюля
+					if (!getPasslist().isEmpty()) {
+						if (getPasslist().get(0).isInout()) {
+							getPasslist().remove(0);
+							out++;
+						}
+					}
 					getPasslist().add(passenger);
 					getPasslist().notifyAll();
+					in++;
 				}
-//				System.out
-//						.println("New passanger " + passenger.getId() + " on the lobby of station " + getStation().getId());
 			} catch (InterruptedException e) {
 			}
 		} while (true);

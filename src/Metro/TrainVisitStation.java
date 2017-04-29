@@ -1,16 +1,21 @@
 package Metro;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 
-public class TrainVisitStation implements Runnable {
+public class TrainVisitStation {
 	private int id; // Ключ
 	private Station station; // Станция
 	private Train train; // Объект перемещения поезда по линии
 	private List<Passenger> passin; // Пассажири, которые зашли в поезд
 	private List<Passenger> passout; // Пассажири, которые вышли из поезда
+
+	int countpassin;
+	int countpassout;
+	CountDownLatch start;
+	CountDownLatch finish;
 
 	public TrainVisitStation() {
 	}
@@ -21,58 +26,67 @@ public class TrainVisitStation implements Runnable {
 		this.id = id;
 		this.station = station;
 		this.train = train;
-
+		finish = new CountDownLatch(train.getWagonlist().size() - 2);
+		start = new CountDownLatch(1);
+		countpassin = 0;
+		countpassout = 0;
 	}
 
-	@Override
-	public void run() {
-		int countpassin = 0;
-		int countpassout = 0;
-		synchronized (getStation().getPasslist()) {
-			// Выгрузка из вагона случайного количества пассажиров
-			for (int i = 1; i < getTrain().getWagonlist().size() - 1; i++) {
-				List<Passenger> temp = new ArrayList<>();
-				Wagon wagon = getTrain().getWagonlist().get(i);
-				Iterator<Passenger> iterpasswagon = wagon.getPasslist().iterator();
-				int passwagon = 0;
-				if (!wagon.getPasslist().isEmpty()) {
-					passwagon = new Random().nextInt(wagon.getPasslist().size());
-					for (int j = 0; j <= passwagon; j++) {
-						temp.add(iterpasswagon.next());
+	public void runTVS() throws InterruptedException {
+		for (int i = 1; i < 4; i++) {
+			Wagon wagon = getTrain().getWagonlist().get(i);
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					Passenger passenger = new Passenger();
+					int passwagonout = 0;
+					try {
+						start.await();
+
+						// Выход из поезда
+						passwagonout = 0;
+						if (!wagon.getPasslist().isEmpty()) {
+							passwagonout = new Random().nextInt(wagon.getPasslist().size());
+						}
+						for (int time = 0; time < wagon.fullload; time++) {
+							if (!wagon.getPasslist().isEmpty() && passwagonout > 0) {
+								synchronized (getStation().getPasslist()) {
+									passenger = wagon.getPasslist().get(0);
+									wagon.getPasslist().remove(0);
+									getStation().getPasslist().add(passenger);
+									countpassout++;
+									getStation().getPasslist().notifyAll();
+								}
+								passwagonout--;
+							}
+							Thread.sleep(10);
+						}
+
+						// Вход в поезд
+						for (int time = 0; time < wagon.fullload; time++) {
+							synchronized (getStation().getPasslist()) {
+								if (!getStation().getPasslist().isEmpty()
+										&& wagon.getPasslist().size() < wagon.fullload) {
+									if (!getStation().getPasslist().get(0).isInout()) {
+										passenger = getStation().getPasslist().get(0);
+										passenger.setInout(true);
+										getStation().getPasslist().remove(0);
+										wagon.getPasslist().add(passenger);
+										countpassin++;
+									}
+								}
+								getStation().getPasslist().notifyAll();
+							}
+							Thread.sleep(10);
+						}
+
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
-					wagon.getPasslist().removeAll(temp);
-					getStation().getPasslist().addAll(temp);
-
+					finish.countDown();
 				}
-				setPassout(temp);
-				countpassout += getPassout().size();
-
-				// Загрузка в вагоны максимального количества пассажиров
-
-				Iterator<Passenger> iterpassstation = getStation().getPasslist().iterator();
-				temp.clear();
-				passwagon = 0;
-				if (!wagon.getPasslist().isEmpty()) {
-					passwagon = wagon.getPasslist().size();
-				}
-				int fullload = 30;
-				if (getStation().getPasslist().size() < fullload) {
-					fullload = getStation().getPasslist().size();
-				}
-				for (int j = passwagon; j < fullload; j++) {
-					temp.add(iterpassstation.next());
-				}
-				wagon.getPasslist().addAll(temp);
-				getStation().getPasslist().removeAll(temp);
-				setPassin(temp);
-				countpassin += getPassin().size();
-
-			}
-			getStation().getPasslist().notifyAll();
+			}).start();
 		}
-		System.out.println("Line " + getStation().getLine().getId() + " Station " + getStation().getId() + " Train "
-				+ getTrain().getId() + ": " + countpassout + " passengers out and " + countpassin + " passengers in");
-
 	}
 
 	public int getId() {

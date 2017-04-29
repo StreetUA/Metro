@@ -21,9 +21,11 @@ public class Depo {
 	private Queue<Driver> driverlist; // Список водителей
 
 	public Depo() {
-		this.readFile();
-		// this.trainListBuilder();
-		// this.writeFile();
+		// Чтение поездов из файла или создание новых
+		if (!this.readFile()) {
+			this.trainListBuilder();
+			this.writeFile();
+		}
 
 		// Создание линий и станций
 		this.line = new Line[3];
@@ -67,6 +69,7 @@ public class Depo {
 		}
 	}
 
+	// Запуск станций на линиях
 	public void metroRun() {
 		for (Line line : getLine()) {
 			line.lineRun();
@@ -78,9 +81,18 @@ public class Depo {
 				stationThread.start();
 			}
 		}
+
+		// line[0].lineRun();
+		// Thread lineThread = new Thread(line[0]);
+		// lineThread.start();
+		// Iterator<Station> stationiter = line[0].getStationlist().iterator();
+		// while (stationiter.hasNext()) {
+		// Thread stationThread = new Thread(stationiter.next());
+		// stationThread.start();
+		// }
 	}
 
-	// Метод создания поездов в депо
+	// Создание поездов в депо
 	private void trainListBuilder() {
 
 		// создание коллекции вагонов
@@ -149,7 +161,7 @@ public class Depo {
 	}
 
 	// Считывание поездов из файла
-	private void readFile() {
+	private boolean readFile() {
 
 		List<Train> trainlist = new ArrayList<>();
 
@@ -171,6 +183,7 @@ public class Depo {
 
 		setTrainlist(trainlist);
 
+		return !trainlist.isEmpty();
 	}
 
 	// Запись поездов в файлы

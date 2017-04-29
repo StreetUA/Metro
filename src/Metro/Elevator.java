@@ -1,13 +1,11 @@
 package Metro;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class Elevator implements Runnable {
 	private int id; // Номер эскалатора
+	private boolean updown; // Движение ввер и вниз
 	private Station station; // Номер станции
 	private List<Passenger> passlist; // Список пассажиров
 
@@ -17,21 +15,29 @@ public class Elevator implements Runnable {
 
 	@Override
 	public void run() {
-		// Thread.sleep(2000);
 		do {
 			try {
-				Thread.sleep(50);
+				Thread.sleep(100);
 				// Переход пассажира из вестибюля на эскалатор
 				synchronized (getStation().getLobby().getPasslist()) {
-					if (getStation().getLobby().getPasslist().isEmpty()) {
-						getStation().getLobby().getPasslist().wait();
-					} else {
-						synchronized (getPasslist()) {
-							getPasslist().add(getStation().getLobby().getPasslist().get(0));
+					// из вестибюля на эскалатор
+					if (!this.isUpdown()) {
+						if (getStation().getLobby().getPasslist().isEmpty()) {
+							getStation().getLobby().getPasslist().wait();
+						} else {
+							synchronized (getPasslist()) {
+								getPasslist().add(getStation().getLobby().getPasslist().get(0));
+								getStation().getLobby().getPasslist().remove(0);
+							}
 						}
-//						System.out.println("New passanger " + getStation().getLobby().getPasslist().get(0).getId()
-//								+ " on the elevator " + getId());
-						getStation().getLobby().getPasslist().remove(0);
+					} else {
+						// с эскалатор в вестибюль
+						synchronized (getPasslist()) {
+							if (!getPasslist().isEmpty()) {
+								getStation().getLobby().getPasslist().add(getPasslist().get(0));
+								getPasslist().remove(0);
+							}
+						}
 					}
 				}
 			} catch (InterruptedException e) {
@@ -46,6 +52,14 @@ public class Elevator implements Runnable {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public boolean isUpdown() {
+		return updown;
+	}
+
+	public void setUpdown(boolean updown) {
+		this.updown = updown;
 	}
 
 	public Station getStation() {

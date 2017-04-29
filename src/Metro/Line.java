@@ -23,7 +23,7 @@ public class Line implements Runnable {
 		do {
 			try {
 				count++;
-				Thread.sleep(new Random().nextInt(500));
+				Thread.sleep(new Random().nextInt(2000));
 				synchronized (getTrainlist()) {
 					if (getTrainlist().isEmpty()) {
 						getTrainlist().wait();
@@ -32,8 +32,8 @@ public class Line implements Runnable {
 							if (getDepo().getDriverlist().isEmpty()) {
 								getDepo().getDriverlist().wait();
 							} else {
-								TrainMovingLine tml = new TrainMovingLine(count*100 + getId(), getDepo().getDriverlist(),
-										getTrainlist(), this);
+								TrainMovingLine tml = new TrainMovingLine(count * 100 + getId(),
+										getDepo().getDriverlist(), getTrainlist(), this);
 								Thread tmlThread = new Thread(tml);
 								tmlThread.start();
 							}
@@ -41,21 +41,22 @@ public class Line implements Runnable {
 					}
 				}
 
-//				// Проверка опыта водителей
-//				synchronized (getDepo().getDriverlist()) {
-//					List<Driver> temp = new ArrayList<>();
-//					while (!getDepo().getDriverlist().isEmpty()) {
-//						Driver driver = getDepo().getDriverlist().poll();
-//						System.out.print(driver.getId() + "(" + driver.getExp() + ") ");
-//						temp.add(driver);
-//					}
-//					System.out.println();
-//
-//					Iterator<Driver> tempIter = temp.iterator();
-//					while (tempIter.hasNext()) {
-//						getDepo().getDriverlist().add(tempIter.next());
-//					}
-//				}
+				// // Проверка опыта водителей
+				// synchronized (getDepo().getDriverlist()) {
+				// List<Driver> temp = new ArrayList<>();
+				// while (!getDepo().getDriverlist().isEmpty()) {
+				// Driver driver = getDepo().getDriverlist().poll();
+				// System.out.print(driver.getId() + "(" + driver.getExp() + ")
+				// ");
+				// temp.add(driver);
+				// }
+				// System.out.println();
+				//
+				// Iterator<Driver> tempIter = temp.iterator();
+				// while (tempIter.hasNext()) {
+				// getDepo().getDriverlist().add(tempIter.next());
+				// }
+				// }
 
 			} catch (InterruptedException e) {
 			}
@@ -74,14 +75,13 @@ public class Line implements Runnable {
 	}
 
 	public void lineRun() {
-		this.getStationlist().get(0).stationRun();
-		Thread stationThread = new Thread(getStationlist().get(0));
-		stationThread.start();
-
-		// Iterator<Station> stationiter = this.getStationlist().iterator();
-		// while (stationiter.hasNext()) {
-		// stationiter.next().stationRun();
-		// }
+		Iterator<Station> stationiter = this.getStationlist().iterator();
+		while (stationiter.hasNext()) {
+			Station station = stationiter.next();
+			station.stationRun();
+			Thread stationThread = new Thread(station);
+			stationThread.start();
+		}
 	}
 
 	public int getId() {

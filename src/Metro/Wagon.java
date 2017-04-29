@@ -8,6 +8,7 @@ public class Wagon implements Cloneable, Serializable {
 	private boolean type; // True - головной вагон False - обычный вагон
 	private int id; // Номер вагона
 	private List<Passenger> passlist; // Список пассажиров в вагоне
+	final int fullload = 30;
 
 	private static final long serialVersionUID = 1;
 
