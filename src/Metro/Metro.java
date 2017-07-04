@@ -6,6 +6,7 @@ public class Metro {
 		// TODO Auto-generated method stub
 
 		Depo depo = new Depo();
+		depo.metroBuilder();
 		depo.metroRun();
 			
 	}

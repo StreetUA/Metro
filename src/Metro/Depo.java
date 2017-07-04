@@ -20,7 +20,7 @@ public class Depo {
 	private Line[] line; // Массив линий
 	private Queue<Driver> driverlist; // Список водителей
 
-	public Depo() {
+	public void metroBuilder() {
 		// Чтение поездов из файла или создание новых
 		if (!this.readFile()) {
 			this.trainListBuilder();
@@ -35,7 +35,7 @@ public class Depo {
 			this.getLine()[i].stationCreate();
 			this.getLine()[i].setDepo(this);
 		}
-
+		
 		// Раздача поездов линиям
 		Iterator<Train> triter = getTrainlist().iterator();
 		while (triter.hasNext()) {
